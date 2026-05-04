@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuEra LinkedIn — March 2026 Performance Dashboard</title>
+<style>
+  :root {
+    --navy: #1B3A5C;
+    --navy-light: #24506e;
+    --teal: #0ea5a0;
+    --teal-light: rgba(14,165,160,0.12);
+    --orange: #f59e0b;
+    --orange-light: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --green: #10b981;
+    --green-light: rgba(16,185,129,0.12);
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --gray: #6b7280;
+    --gray-light: #f3f4f6;
+    --gray-border: #e5e7eb;
+    --white: #ffffff;
+    --bg: #f8fafc;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--navy); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+
+  .header { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); padding: 48px 32px 40px; color: var(--white); }
+  .header-inner { max-width: 1100px; margin: 0 auto; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+  .header-label { font-size: 12px; font-weight: 600; color: var(--teal); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .header h1 { font-size: 32px; font-weight: 800; line-height: 1.2; }
+  .header h2 { font-size: 18px; font-weight: 400; opacity: 0.85; margin-top: 6px; }
+  .header-meta { text-align: right; opacity: 0.7; font-size: 13px; line-height: 1.6; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 32px 64px; }
+
+  .scorecards { display: flex; gap: 14px; flex-wrap: wrap; margin-top: -24px; margin-bottom: 8px; }
+  .scorecard { background: var(--white); border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); flex: 1; min-width: 185px; border-top: 4px solid var(--gray-border); }
+  .scorecard.green { border-top-color: var(--green); }
+  .scorecard.blue { border-top-color: var(--blue); }
+  .scorecard.teal { border-top-color: var(--teal); }
+  .scorecard.purple { border-top-color: var(--purple); }
+  .scorecard.orange { border-top-color: var(--orange); }
+  .scorecard-label { font-size: 11px; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .scorecard-value { font-size: 30px; font-weight: 700; color: var(--navy); line-height: 1.1; }
+  .scorecard-sub { font-size: 12px; color: var(--gray); margin-top: 4px; }
+  .scorecard-sub .up { color: var(--green); font-weight: 600; }
+
+  .section { margin-top: 40px; }
+  .section-header { margin-bottom: 20px; }
+  .section-tag { font-size: 11px; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .section-title { font-size: 21px; font-weight: 700; color: var(--navy); }
+  .section-desc { font-size: 13px; color: var(--gray); margin-top: 4px; }
+
+  .panel { background: var(--white); border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; }
+  .panel-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+  .panel-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .panel-row .panel { flex: 1; min-width: 300px; }
+  .panel-row .panel.wide { flex: 2; min-width: 500px; }
+  .panel-row .panel.narrow { flex: 1; min-width: 250px; max-width: 360px; }
+
+  .callout { background: var(--teal-light); border-left: 4px solid var(--teal); border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+  .callout.orange { background: var(--orange-light); border-left-color: var(--orange); }
+  .callout.green { background: var(--green-light); border-left-color: var(--green); }
+  .callout-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .callout-text { font-size: 13px; color: var(--navy); line-height: 1.5; }
+
+  .bar-group { margin-bottom: 14px; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
+  .bar-label-name { font-weight: 600; color: var(--navy); }
+  .bar-label-value { color: var(--gray); font-weight: 500; }
+  .bar-track { background: var(--gray-light); border-radius: 6px; height: 22px; position: relative; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 600; color: white; min-width: 30px; }
+  .bar-fill.green { background: #10b981; }
+  .bar-fill.blue { background: #3b82f6; }
+  .bar-fill.teal { background: #0ea5a0; }
+
+  /* Tables */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th { text-align: left; font-size: 11px; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; border-bottom: 2px solid var(--gray-border); }
+  .data-table td { padding: 10px; border-bottom: 1px solid var(--gray-light); }
+  .data-table tr:hover { background: #fafbfc; }
+  .rank { font-weight: 700; color: var(--purple); width: 32px; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .er-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-weight: 600; font-size: 12px; }
+  .er-high { background: rgba(16,185,129,0.12); color: #065f46; }
+  .er-mid { background: rgba(245,158,11,0.12); color: #92400e; }
+
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th { text-align: left; font-size: 11px; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; border-bottom: 2px solid var(--gray-border); }
+  .comp-table td { padding: 10px; border-bottom: 1px solid var(--gray-light); }
+  .comp-table tr.highlight { background: var(--teal-light); font-weight: 600; }
+  .comp-table tr.highlight td { border-bottom: 2px solid var(--teal); }
+  .comp-badge { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+  .comp-badge.up { background: #d1fae5; color: #065f46; }
+  .comp-badge.down { background: #fee2e2; color: #991b1b; }
+
+  .ba-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: 8px; }
+  .ba-item.before { background: #fef2f2; }
+  .ba-item.after { background: #ecfdf5; }
+  .ba-metric-name { font-size: 12px; font-weight: 600; color: var(--navy); }
+  .ba-metric-value { font-size: 18px; font-weight: 700; }
+  .ba-item.before .ba-metric-value { color: var(--red); }
+  .ba-item.after .ba-metric-value { color: var(--green); }
+  .ba-metric-period { font-size: 10px; color: var(--gray); }
+
+  .scope-compare { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+  .scope-box { flex: 1; min-width: 200px; text-align: center; padding: 20px; border-radius: 10px; }
+  .scope-box.contracted { background: var(--gray-light); border: 2px dashed var(--gray-border); }
+  .scope-box.delivered { background: var(--green-light); border: 2px solid var(--green); }
+  .scope-box-label { font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .scope-box.delivered .scope-box-label { color: var(--green); }
+  .scope-box-value { font-size: 36px; font-weight: 800; color: var(--navy); }
+  .scope-box-sub { font-size: 12px; color: var(--gray); margin-top: 4px; }
+  .scope-delta { text-align: center; min-width: 100px; }
+  .scope-delta-value { font-size: 28px; font-weight: 800; color: var(--green); }
+  .scope-delta-label { font-size: 11px; color: var(--gray); }
+
+  .matrix-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--gray-light); }
+  .matrix-row:last-child { border-bottom: none; }
+  .matrix-type { width: 170px; font-size: 12px; font-weight: 600; color: var(--navy); flex-shrink: 0; }
+  .matrix-bars { flex: 1; display: flex; gap: 8px; align-items: center; }
+  .matrix-bar-wrapper { flex: 1; }
+  .matrix-bar-label { font-size: 9px; color: var(--gray); text-transform: uppercase; font-weight: 600; margin-bottom: 2px; }
+  .matrix-bar-track { background: #e5e7eb; border-radius: 4px; height: 20px; overflow: hidden; }
+  .matrix-bar-fill { height: 100%; border-radius: 4px; font-size: 10px; color: white; font-weight: 700; display: flex; align-items: center; padding-left: 8px; min-width: 60px; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+  .matrix-bar-fill.green { background: #059669; }
+  .matrix-bar-fill.teal { background: #0d9488; }
+  .matrix-bar-fill.blue { background: #2563eb; }
+  .matrix-bar-fill.orange { background: #d97706; }
+  .matrix-bar-fill.red { background: #dc2626; }
+  .matrix-tier { width: 50px; text-align: center; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 8px; flex-shrink: 0; }
+  .tier1 { background: #d1fae5; color: #065f46; }
+  .tier2 { background: #fef3c7; color: #92400e; }
+  .tier3 { background: #fee2e2; color: #991b1b; }
+
+  .type-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .type-card { padding: 20px; border-radius: 10px; background: var(--gray-light); border: 1px solid var(--gray-border); }
+  .type-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--navy); }
+  .type-stat { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
+  .type-stat .label { color: var(--gray); }
+  .type-stat .val { font-weight: 600; color: var(--navy); }
+
+  .cost-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .cost-item { text-align: center; padding: 16px; border-radius: 8px; background: var(--gray-light); }
+  .cost-item.highlight { background: var(--green-light); }
+  .cost-value { font-size: 24px; font-weight: 800; color: var(--navy); }
+  .cost-item.highlight .cost-value { color: var(--green); }
+  .cost-label { font-size: 11px; color: var(--gray); margin-top: 2px; }
+
+  .annotation { font-size: 11px; color: var(--gray); font-style: italic; margin-top: 8px; }
+  .footer { text-align: center; padding: 32px; font-size: 12px; color: var(--gray); border-top: 1px solid var(--gray-border); margin-top: 32px; }
+
+  @media (max-width: 768px) {
+    .header { padding: 32px 16px; }
+    .header h1 { font-size: 24px; }
+    .container { padding: 16px; }
+    .scorecards { gap: 8px; }
+    .scorecard { min-width: 140px; padding: 14px; }
+    .scorecard-value { font-size: 24px; }
+    .panel-row { flex-direction: column; }
+    .panel-row .panel { min-width: auto; max-width: none; }
+    .scope-compare { flex-direction: column; }
+    .type-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="header-label">Monthly Performance Report</div>
+        <h1>QuEra Computing — LinkedIn Analytics</h1>
+        <h2>March 2026</h2>
+      </div>
+      <div class="header-meta">
+        Prepared by Sarah Schupp<br>
+        April 2, 2026<br>
+        Source: LinkedIn Native Analytics
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCORECARDS ========== -->
+<div class="container">
+  <div class="scorecards">
+    <div class="scorecard green">
+      <div class="scorecard-label">Followers</div>
+      <div class="scorecard-value">34,476</div>
+      <div class="scorecard-sub"><span class="up">+1,276 (+3.8%)</span> · +93% vs prior month</div>
+    </div>
+    <div class="scorecard blue">
+      <div class="scorecard-label">Impressions</div>
+      <div class="scorecard-value">335,709</div>
+      <div class="scorecard-sub">5,087 avg per post</div>
+    </div>
+    <div class="scorecard teal">
+      <div class="scorecard-label">Total Clicks</div>
+      <div class="scorecard-value">27,080</div>
+      <div class="scorecard-sub">410 avg per post</div>
+    </div>
+    <div class="scorecard purple">
+      <div class="scorecard-label">Engagement Rate</div>
+      <div class="scorecard-value">9.10%</div>
+      <div class="scorecard-sub">+160% vs B2B avg (3.5%)</div>
+    </div>
+    <div class="scorecard orange">
+      <div class="scorecard-label">Posts Published</div>
+      <div class="scorecard-value">66</div>
+      <div class="scorecard-sub"><span class="up">+47% over contract scope</span></div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 1: FIVE-MONTH TRAJECTORY ========== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">The Big Picture</div>
+      <div class="section-title">Five-Month Trajectory: Nov 2025 → Mar 2026</div>
+      <div class="section-desc">The channel was trending down from June through October 2025. Since November, every major metric has reversed.</div>
+    </div>
+
+    <div class="panel">
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
+        <div style="flex: 1; min-width: 150px; text-align: center; padding: 16px; border-radius: 8px; background: linear-gradient(135deg, #ecfdf5, #d1fae5);">
+          <div style="font-size: 11px; color: var(--green); font-weight: 700; text-transform: uppercase;">Followers</div>
+          <div style="font-size: 28px; font-weight: 800; color: var(--navy);">29.4K → 34.5K</div>
+          <div style="font-size: 13px; color: var(--green); font-weight: 600;">+17.4%</div>
+        </div>
+        <div style="flex: 1; min-width: 150px; text-align: center; padding: 16px; border-radius: 8px; background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+          <div style="font-size: 11px; color: var(--blue); font-weight: 700; text-transform: uppercase;">Engagement Rate</div>
+          <div style="font-size: 28px; font-weight: 800; color: var(--navy);">4.8% → 9.10%</div>
+          <div style="font-size: 13px; color: var(--green); font-weight: 600;">+90%</div>
+        </div>
+        <div style="flex: 1; min-width: 150px; text-align: center; padding: 16px; border-radius: 8px; background: linear-gradient(135deg, #f0fdfa, #ccfbf1);">
+          <div style="font-size: 11px; color: var(--teal); font-weight: 700; text-transform: uppercase;">Monthly Clicks</div>
+          <div style="font-size: 28px; font-weight: 800; color: var(--navy);">5K → 27K</div>
+          <div style="font-size: 13px; color: var(--green); font-weight: 600;">+440%</div>
+        </div>
+        <div style="flex: 1; min-width: 150px; text-align: center; padding: 16px; border-radius: 8px; background: linear-gradient(135deg, #faf5ff, #ede9fe);">
+          <div style="font-size: 11px; color: var(--purple); font-weight: 700; text-transform: uppercase;">Competitor Rank</div>
+          <div style="font-size: 28px; font-weight: 800; color: var(--navy);">#1 Growth Rate</div>
+          <div style="font-size: 13px; color: var(--green); font-weight: 600;">+93% vs prior month</div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 280px;">
+          <div style="text-align: center; margin-bottom: 16px;">
+            <span style="font-size: 12px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.08em;">Before (Jun–Oct 2025)</span>
+          </div>
+          <div class="ba-item before" style="margin-bottom: 8px;">
+            <div><div class="ba-metric-name">Monthly Clicks</div><div class="ba-metric-period">Trending Jun → Oct</div></div>
+            <div class="ba-metric-value">23K → 5K</div>
+          </div>
+          <div class="ba-item before" style="margin-bottom: 8px;">
+            <div><div class="ba-metric-name">Monthly Comments</div><div class="ba-metric-period">Trending Jun → Oct</div></div>
+            <div class="ba-metric-value">44 → 12</div>
+          </div>
+          <div class="ba-item before" style="margin-bottom: 8px;">
+            <div><div class="ba-metric-name">Engagement Rate</div><div class="ba-metric-period">Oct 2025</div></div>
+            <div class="ba-metric-value">~4.8%</div>
+          </div>
+          <div class="ba-item before">
+            <div><div class="ba-metric-name">Followers</div><div class="ba-metric-period">Oct 31, 2025</div></div>
+            <div class="ba-metric-value">29,361</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: center; min-width: 80px;">
+          <div style="font-size: 36px;">→</div>
+        </div>
+
+        <div style="flex: 1; min-width: 280px;">
+          <div style="text-align: center; margin-bottom: 16px;">
+            <span style="font-size: 12px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em;">After (Nov 2025–Mar 2026)</span>
+          </div>
+          <div class="ba-item after" style="margin-bottom: 8px;">
+            <div><div class="ba-metric-name">Monthly Clicks</div><div class="ba-metric-period">March 2026</div></div>
+            <div class="ba-metric-value">27,080</div>
+          </div>
+          <div class="ba-item after" style="margin-bottom: 8px;">
+            <div><div class="ba-metric-name">Monthly Comments</div><div class="ba-metric-period">March 2026</div></div>
+            <div class="ba-metric-value">98</div>
+          </div>
+          <div class="ba-item after" style="margin-bottom: 8px;">
+            <div><div class="ba-metric-name">Engagement Rate</div><div class="ba-metric-period">March 2026</div></div>
+            <div class="ba-metric-value">9.10%</div>
+          </div>
+          <div class="ba-item after">
+            <div><div class="ba-metric-name">Followers</div><div class="ba-metric-period">Mar 31, 2026</div></div>
+            <div class="ba-metric-value">34,476</div>
+          </div>
+        </div>
+
+        <div style="flex: 0.8; min-width: 200px; display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+          <div style="text-align: center; margin-bottom: 8px;">
+            <span style="font-size: 12px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.08em;">Change</span>
+          </div>
+          <div style="text-align: center; padding: 8px; background: #ecfdf5; border-radius: 8px; margin-bottom: 4px;">
+            <div style="font-size: 20px; font-weight: 800; color: var(--green);">+440%</div>
+            <div style="font-size: 10px; color: var(--gray);">Clicks (Oct → Mar)</div>
+          </div>
+          <div style="text-align: center; padding: 8px; background: #ecfdf5; border-radius: 8px; margin-bottom: 4px;">
+            <div style="font-size: 20px; font-weight: 800; color: var(--green);">+717%</div>
+            <div style="font-size: 10px; color: var(--gray);">Comments (Oct → Mar)</div>
+          </div>
+          <div style="text-align: center; padding: 8px; background: #ecfdf5; border-radius: 8px; margin-bottom: 4px;">
+            <div style="font-size: 20px; font-weight: 800; color: var(--green);">+90%</div>
+            <div style="font-size: 10px; color: var(--gray);">Engagement Rate</div>
+          </div>
+          <div style="text-align: center; padding: 8px; background: #ecfdf5; border-radius: 8px;">
+            <div style="font-size: 20px; font-weight: 800; color: var(--green);">+5,115</div>
+            <div style="font-size: 10px; color: var(--gray);">Net Followers (+17.4%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 2: COMPETITIVE BENCHMARKING ========== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Market Position</div>
+      <div class="section-title">Competitive Benchmarking</div>
+      <div class="section-desc">LinkedIn's built-in competitor tracking shows QuEra's position among quantum computing peers. Data: LinkedIn Competitor Analytics, March 2026.</div>
+    </div>
+
+    <div class="panel-row">
+      <div class="panel wide">
+        <div class="panel-title">New Follower Growth — March 2026</div>
+        <table class="comp-table">
+          <tr><th>Company</th><th>Total Followers</th><th>New in March</th><th>MoM Trend</th><th>Notes</th></tr>
+          <tr>
+            <td>Pasqal</td><td>51,788</td><td><strong>3,231</strong></td>
+            <td><span class="comp-badge up">+246%</span></td>
+            <td style="font-size: 11px; color: var(--gray);">Driven by a funding round announcement and CINECA deployment news</td>
+          </tr>
+          <tr>
+            <td>IonQ</td><td>76,828</td><td>2,910</td>
+            <td><span class="comp-badge down">-6.9%</span></td>
+            <td style="font-size: 11px; color: var(--gray);">Largest page, but growth decelerating</td>
+          </tr>
+          <tr>
+            <td>Quantinuum</td><td>60,189</td><td>1,465</td>
+            <td><span class="comp-badge down">-9.8%</span></td>
+            <td style="font-size: 11px; color: var(--gray);">Declining growth rate</td>
+          </tr>
+          <tr class="highlight">
+            <td>QuEra Computing</td><td>34,476</td><td><strong>1,276</strong></td>
+            <td><span class="comp-badge up">+93%</span></td>
+            <td style="font-size: 11px; color: #065f46; font-weight: 600;">Fastest organic growth rate among established peers</td>
+          </tr>
+          <tr>
+            <td>Infleqtion</td><td>34,692</td><td>1,070</td>
+            <td><span class="comp-badge down">-34.8%</span></td>
+            <td style="font-size: 11px; color: var(--gray);">Nearly identical follower count to QuEra; declining</td>
+          </tr>
+          <tr>
+            <td>Rigetti Computing</td><td>47,279</td><td>760</td>
+            <td><span class="comp-badge down">-16.5%</span></td>
+            <td style="font-size: 11px; color: var(--gray);">37% more followers but 40% fewer new adds</td>
+          </tr>
+          <tr>
+            <td>Atom Computing</td><td>20,513</td><td>466</td>
+            <td><span class="comp-badge up">+18%</span></td>
+            <td style="font-size: 11px; color: var(--gray);">Smaller but growing</td>
+          </tr>
+        </table>
+        <div class="annotation">Source: LinkedIn Competitor Analytics, March 2026. Pasqal's spike was driven by major corporate milestones. QuEra's +93% is the most efficient organic growth in the neutral-atom space, achieved without comparable funding news.</div>
+      </div>
+
+      <div class="panel narrow">
+        <div class="panel-title">QuEra vs. Competitor Averages</div>
+        <div style="margin-bottom: 20px;">
+          <div class="bar-group">
+            <div class="bar-label"><span class="bar-label-name">Posts Published</span><span class="bar-label-value">338% above avg</span></div>
+            <div class="bar-track"><div class="bar-fill teal" style="width: 95%;">66 posts</div></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label"><span class="bar-label-name">Engagement Rate</span><span class="bar-label-value">+160% vs B2B avg</span></div>
+            <div class="bar-track"><div class="bar-fill green" style="width: 80%;">9.10%</div></div>
+          </div>
+        </div>
+        <div class="callout green" style="margin-bottom: 0;">
+          <div class="callout-title">The takeaway</div>
+          <div class="callout-text">QuEra publishes more than any peer while maintaining a higher engagement rate. Volume has not diluted quality.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 3: TOP POSTS ========== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Content Intelligence</div>
+      <div class="section-title">Top Posts — March 2026</div>
+    </div>
+
+    <div class="panel-row">
+      <div class="panel">
+        <div class="panel-title">Top 10 by Impressions</div>
+        <table class="data-table">
+          <thead><tr><th style="width:32px">#</th><th>Post</th><th>Type</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">ER</th></tr></thead>
+          <tbody>
+            <tr><td class="rank">1</td><td>Bell Prize — Lukin, Browaeys, Saffman</td><td>Image</td><td class="num">27,532</td><td class="num">980</td><td class="num"><span class="er-badge er-high">5.69%</span></td></tr>
+            <tr><td class="rank">2</td><td>APS Booth #1607 — Lukin, Martinis, Saraiva</td><td>Image</td><td class="num">21,798</td><td class="num">421</td><td class="num"><span class="er-badge er-mid">2.52%</span></td></tr>
+            <tr><td class="rank">3</td><td>Chemistry may not be the killer app</td><td>Article</td><td class="num">18,460</td><td class="num">891</td><td class="num"><span class="er-badge er-mid">4.83%</span></td></tr>
+            <tr><td class="rank">4</td><td>APS hockey match sponsor promo</td><td>Image</td><td class="num">18,156</td><td class="num">773</td><td class="num"><span class="er-badge er-mid">4.26%</span></td></tr>
+            <tr><td class="rank">5</td><td>Wallraff vs. Lukin hockey game</td><td>Image</td><td class="num">15,755</td><td class="num">1,318</td><td class="num"><span class="er-badge er-high">9.43%</span></td></tr>
+            <tr><td class="rank">6</td><td>Hiring: Quantum Scientist (AMO)</td><td>Video</td><td class="num">12,143</td><td class="num">1,547</td><td class="num"><span class="er-badge er-high">13.96%</span></td></tr>
+            <tr><td class="rank">7</td><td>UK £2B quantum — ProQure + NQCC</td><td>Image</td><td class="num">10,544</td><td class="num">272</td><td class="num"><span class="er-badge er-mid">4.05%</span></td></tr>
+            <tr><td class="rank">8</td><td>Inverse Quantum Simulation</td><td>Article</td><td class="num">10,513</td><td class="num">449</td><td class="num"><span class="er-badge er-high">5.14%</span></td></tr>
+            <tr><td class="rank">9</td><td>Quantum NOT ready for production</td><td>Image</td><td class="num">9,913</td><td class="num">413</td><td class="num"><span class="er-badge er-mid">4.72%</span></td></tr>
+            <tr><td class="rank">10</td><td>Hiring: Quantum Scientist — Community/AI</td><td>Video</td><td class="num">9,375</td><td class="num">933</td><td class="num"><span class="er-badge er-high">11.24%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel-row" style="margin-top: 0;">
+      <div class="panel">
+        <div class="panel-title">Top 10 by Engagement Rate</div>
+        <table class="data-table">
+          <thead><tr><th style="width:32px">#</th><th>Post</th><th>Type</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">ER</th></tr></thead>
+          <tbody>
+            <tr><td class="rank">1</td><td>Extractor systems paper — Sunny Zhiyang He</td><td>Document</td><td class="num">4,819</td><td class="num">2,515</td><td class="num"><span class="er-badge er-high">53.14%</span></td></tr>
+            <tr><td class="rank">2</td><td>Q1 team social — Warrior Ice Arena</td><td>Image</td><td class="num">5,353</td><td class="num">2,742</td><td class="num"><span class="er-badge er-high">52.25%</span></td></tr>
+            <tr><td class="rank">3</td><td>Adiabatic optimization — schedule engineering</td><td>Document</td><td class="num">3,578</td><td class="num">1,662</td><td class="num"><span class="er-badge er-high">47.21%</span></td></tr>
+            <tr><td class="rank">4</td><td>Hybrid classical-quantum circuit cutting</td><td>Document</td><td class="num">5,145</td><td class="num">2,314</td><td class="num"><span class="er-badge er-high">46.14%</span></td></tr>
+            <tr><td class="rank">5</td><td>Arthur D. Little Blue Shift update</td><td>Document</td><td class="num">3,223</td><td class="num">1,323</td><td class="num"><span class="er-badge er-high">42.29%</span></td></tr>
+            <tr><td class="rank">6</td><td>Information flow on Aquila — confinement</td><td>Document</td><td class="num">3,457</td><td class="num">1,368</td><td class="num"><span class="er-badge er-high">40.44%</span></td></tr>
+            <tr><td class="rank">7</td><td>Atom loss — Pauli Envelope framework</td><td>Document</td><td class="num">3,952</td><td class="num">1,450</td><td class="num"><span class="er-badge er-high">37.70%</span></td></tr>
+            <tr><td class="rank">8</td><td>2025 ACM Turing Award — Bennett & Brassard</td><td>Document</td><td class="num">2,933</td><td class="num">1,022</td><td class="num"><span class="er-badge er-high">35.77%</span></td></tr>
+            <tr><td class="rank">9</td><td>iQuHACK 2026 winners lab tour + BriQs</td><td>Image</td><td class="num">3,515</td><td class="num">558</td><td class="num"><span class="er-badge er-high">17.44%</span></td></tr>
+            <tr><td class="rank">10</td><td>Hiring: Quantum Scientist (AMO)</td><td>Video</td><td class="num">12,143</td><td class="num">1,547</td><td class="num"><span class="er-badge er-high">13.96%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 4: POST TYPE BREAKDOWN ========== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Format Analysis</div>
+      <div class="section-title">Performance by Post Type</div>
+    </div>
+
+    <div class="panel">
+      <div class="type-row">
+        <div class="type-card">
+          <h3>Image (40 posts)</h3>
+          <div class="type-stat"><span class="label">Total Impressions</span><span class="val">209,186</span></div>
+          <div class="type-stat"><span class="label">Avg Impressions</span><span class="val">5,230</span></div>
+          <div class="type-stat"><span class="label">Total Clicks</span><span class="val">10,168</span></div>
+          <div class="type-stat"><span class="label">Avg ER</span><span class="val">5.49%</span></div>
+        </div>
+        <div class="type-card">
+          <h3>Article (14 posts)</h3>
+          <div class="type-stat"><span class="label">Total Impressions</span><span class="val">70,384</span></div>
+          <div class="type-stat"><span class="label">Avg Impressions</span><span class="val">5,027</span></div>
+          <div class="type-stat"><span class="label">Total Clicks</span><span class="val">2,462</span></div>
+          <div class="type-stat"><span class="label">Avg ER</span><span class="val">3.06%</span></div>
+        </div>
+        <div class="type-card" style="border-color: var(--teal); border-width: 2px;">
+          <h3>Document (9 posts)</h3>
+          <div class="type-stat"><span class="label">Total Impressions</span><span class="val">29,874</span></div>
+          <div class="type-stat"><span class="label">Avg Impressions</span><span class="val">3,319</span></div>
+          <div class="type-stat"><span class="label">Total Clicks</span><span class="val">11,666</span></div>
+          <div class="type-stat"><span class="label">Avg ER</span><span class="val" style="color: var(--teal);">42.10%</span></div>
+        </div>
+        <div class="type-card">
+          <h3>Video (3 posts)</h3>
+          <div class="type-stat"><span class="label">Total Impressions</span><span class="val">26,265</span></div>
+          <div class="type-stat"><span class="label">Avg Impressions</span><span class="val">8,755</span></div>
+          <div class="type-stat"><span class="label">Total Clicks</span><span class="val">2,784</span></div>
+          <div class="type-stat"><span class="label">Avg ER</span><span class="val">10.77%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 5: CONTENT PERFORMANCE MATRIX ========== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Content Intelligence</div>
+      <div class="section-title">Content Performance by Category</div>
+      <div class="section-desc">March data confirms which content types drive value and which should be reduced.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Avg Impressions & ER by Content Type</div>
+
+      <div class="matrix-row">
+        <div class="matrix-type">Awards / Validation</div>
+        <div class="matrix-bars">
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg Impressions</div><div class="matrix-bar-track"><div class="matrix-bar-fill green" style="width: 90%;">~12,400</div></div></div>
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg ER</div><div class="matrix-bar-track"><div class="matrix-bar-fill green" style="width: 90%;">5.4%</div></div></div>
+        </div>
+        <div class="matrix-tier tier1">Tier 1</div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-type">Hiring (Video)</div>
+        <div class="matrix-bars">
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg Impressions</div><div class="matrix-bar-track"><div class="matrix-bar-fill green" style="width: 78%;">~10,750</div></div></div>
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg ER</div><div class="matrix-bar-track"><div class="matrix-bar-fill green" style="width: 100%;">12.6%</div></div></div>
+        </div>
+        <div class="matrix-tier tier1">Tier 1</div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-type">Culture / Team</div>
+        <div class="matrix-bars">
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg Impressions</div><div class="matrix-bar-track"><div class="matrix-bar-fill teal" style="width: 39%;">~5,400</div></div></div>
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg ER</div><div class="matrix-bar-track"><div class="matrix-bar-fill green" style="width: 72%;">9.3%</div></div></div>
+        </div>
+        <div class="matrix-tier tier1">Tier 1</div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-type">Research Papers<br><span style="font-size: 9px; color: var(--teal); font-weight: 400;">HIGH-INTENT / AUTHORITY</span></div>
+        <div class="matrix-bars">
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg Impressions</div><div class="matrix-bar-track"><div class="matrix-bar-fill teal" style="width: 35%;">~4,800</div></div></div>
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg ER</div><div class="matrix-bar-track"><div class="matrix-bar-fill teal" style="width: 52%;">5.2%*</div></div></div>
+        </div>
+        <div class="matrix-tier tier1" style="font-size: 9px;">Authority</div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-type">Policy / Government</div>
+        <div class="matrix-bars">
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg Impressions</div><div class="matrix-bar-track"><div class="matrix-bar-fill blue" style="width: 39%;">~5,400</div></div></div>
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg ER</div><div class="matrix-bar-track"><div class="matrix-bar-fill blue" style="width: 45%;">3.9%</div></div></div>
+        </div>
+        <div class="matrix-tier tier2">Tier 2</div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-type">History (#QuantumGreats)</div>
+        <div class="matrix-bars">
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg Impressions</div><div class="matrix-bar-track"><div class="matrix-bar-fill blue" style="width: 32%;">~4,450</div></div></div>
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg ER</div><div class="matrix-bar-track"><div class="matrix-bar-fill orange" style="width: 35%;">3.1%</div></div></div>
+        </div>
+        <div class="matrix-tier tier2">Tier 2</div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-type">Events / Conferences</div>
+        <div class="matrix-bars">
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg Impressions</div><div class="matrix-bar-track"><div class="matrix-bar-fill blue" style="width: 30%;">~4,100</div></div></div>
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg ER</div><div class="matrix-bar-track"><div class="matrix-bar-fill orange" style="width: 38%;">3.4%</div></div></div>
+        </div>
+        <div class="matrix-tier tier2">Tier 2</div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-type">Thought Leadership</div>
+        <div class="matrix-bars">
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg Impressions</div><div class="matrix-bar-track"><div class="matrix-bar-fill orange" style="width: 15%;">~2,000</div></div></div>
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg ER</div><div class="matrix-bar-track"><div class="matrix-bar-fill orange" style="width: 28%;">2.5%</div></div></div>
+        </div>
+        <div class="matrix-tier tier3">Tier 3</div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-type">Podcasts</div>
+        <div class="matrix-bars">
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg Impressions</div><div class="matrix-bar-track"><div class="matrix-bar-fill red" style="width: 12%;">~1,600</div></div></div>
+          <div class="matrix-bar-wrapper"><div class="matrix-bar-label">Avg ER</div><div class="matrix-bar-track"><div class="matrix-bar-fill red" style="width: 24%;">2.1%</div></div></div>
+        </div>
+        <div class="matrix-tier tier3">Tier 3</div>
+      </div>
+
+      <div class="annotation">*Research paper ER is inflated by LinkedIn's document-type click attribution. Impressions are the more reliable signal for this category.</div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 6: SCOPE vs DELIVERY ========== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Value Delivery</div>
+      <div class="section-title">Contract Scope vs. Actual Delivery</div>
+      <div class="section-desc">The consulting agreement specifies 2 posts/day (~40-45 posts/month) at $1,500/month.</div>
+    </div>
+
+    <div class="panel">
+      <div class="scope-compare">
+        <div class="scope-box contracted">
+          <div class="scope-box-label">Contract Scope</div>
+          <div class="scope-box-value">40-45</div>
+          <div class="scope-box-sub">posts per month</div>
+        </div>
+        <div class="scope-delta">
+          <div class="scope-delta-value">+47%</div>
+          <div class="scope-delta-label">over scope</div>
+        </div>
+        <div class="scope-box delivered">
+          <div class="scope-box-label">Actually Delivered</div>
+          <div class="scope-box-value">66</div>
+          <div class="scope-box-sub">posts in March 2026</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <div class="panel-title">March Deliverables Beyond Posting</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+          <div style="padding: 10px; background: var(--gray-light); border-radius: 6px;"><strong>66 posts</strong> drafted, edited, tagged, scheduled in Buffer</div>
+          <div style="padding: 10px; background: var(--gray-light); border-radius: 6px;"><strong>Weekly analytics</strong> reviews and optimization decisions</div>
+          <div style="padding: 10px; background: var(--gray-light); border-radius: 6px;"><strong>Monthly performance report</strong> (Excel, 4 tabs, full post-level data)</div>
+          <div style="padding: 10px; background: var(--gray-light); border-radius: 6px;"><strong>Company/person tagging</strong> for every post to maximize algorithmic reach</div>
+          <div style="padding: 10px; background: var(--gray-light); border-radius: 6px;"><strong>Competitive monitoring</strong> of 6 quantum computing peer pages</div>
+          <div style="padding: 10px; background: var(--gray-light); border-radius: 6px;"><strong>Source material curation</strong> — research papers, press releases, and news sourced for the content pipeline</div>
+        </div>
+      </div>
+
+      <div class="annotation" style="margin-top: 12px;">All 66 posts delivered with zero paid media spend. LinkedIn sponsored content achieving equivalent reach (335K impressions) and clicks (27K) would cost approximately $1,700-4,100 per month in media spend alone, before content creation.</div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 7: APRIL OUTLOOK ========== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Looking Ahead</div>
+      <div class="section-title">April Strategy</div>
+    </div>
+
+    <div class="panel-row">
+      <div class="panel" style="background: var(--navy); color: white; flex: 1; min-width: 250px;">
+        <div class="panel-title" style="color: var(--teal);">April Efficiency Goal</div>
+        <div style="font-size: 36px; font-weight: 800;">6-8</div>
+        <div style="font-size: 13px; opacity: 0.8;">High-Impact Posts / Week</div>
+        <p style="font-size: 12px; margin-top: 12px; opacity: 0.7; line-height: 1.5;">Consolidating low-performing event promos, generic article shares, and product announcements into fewer, higher-authority technical features and human-interest posts.</p>
+      </div>
+
+      <div class="panel" style="background: var(--teal-light); border: 1px solid var(--teal); flex: 2; min-width: 400px;">
+        <div class="panel-title" style="color: var(--navy);">The March Pilot ROI</div>
+        <div class="cost-grid">
+          <div class="cost-item" style="background: white;">
+            <div class="cost-value">+47%</div>
+            <div class="cost-label">Above Scope Output</div>
+          </div>
+          <div class="cost-item" style="background: white;">
+            <div class="cost-value">1,276</div>
+            <div class="cost-label">New High-Intent Follows</div>
+          </div>
+          <div class="cost-item highlight">
+            <div class="cost-value">9.10%</div>
+            <div class="cost-label">Avg Engagement Rate</div>
+          </div>
+        </div>
+        <p style="font-size: 12px; color: var(--navy); margin-top: 14px; line-height: 1.5;">The March volume was a deliberate pilot: over-index on output to build a statistically meaningful dataset, then use it to eliminate low-performing categories for Q2. The winning formula is now identified and built into the April content plan.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    QuEra Computing — LinkedIn Analytics Dashboard · March 2026 · Prepared by Sarah Schupp · Source: LinkedIn Native Analytics
+  </div>
+</div>
+
+</body>
+</html>
